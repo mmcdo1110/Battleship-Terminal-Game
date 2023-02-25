@@ -1,35 +1,93 @@
 import random
 
+
+def print_blank_grid():
+    first_row = "  "
+    for i in range(1, 10):
+        first_row += " {} ".format(i)
+    first_row += " 0 "
+    print(first_row)
+    for r in range(10):
+        letter = chr(ord("A") + r)
+        row = letter + " "
+        for c in range(10):
+            row += " - "
+        print(row)
+
+
 class Ship:
-    def __init__(self, ship_name, num_spaces):
+    def __init__(self, ship_name, ship_length):
         self.name = ship_name
-        self.spaces = num_spaces
+        self.length = ship_length
         self.location_front = None
         self.location_back = None
         self.sunk = False
 
     def __repr__(self):
         return self.name
-    
-    def place_ship(self):
-        coordinates = input("Please enter the starting coordinate of your ship: ")
-        #Verifys that the coordinates were entered in the correct form.
-        if len(coordinates) == 2:
-            try:
-                if 0 <= int(coordinates[1]) <= 9:
-                    x = coordinates[1]
-                    coordinates_ord = coordinates[0].upper()
-                    if ord("A") <= ord(coordinates_ord) <= ord("J"):
-                        y = coordinates[0]
-                        self.location_front = coordinates
-                        print(self.location_front)
-                    else:
-                        print("Must enter a letter A through J as the first coordinate character.")
-            except ValueError:
-                print("Must enter an integer as the second coordinate character.")
+
+    def front_back_dist_check(self, ship_length, front_coord, back_coord):
+        front_x = front_coord[0]
+        front_y = int(front_coord[1])
+        back_x = back_coord[0]
+        back_y = int(back_coord[1])
+        length = ship_length
+        if (ord(front_x) + (length - 1)) == ord(back_x) or (ord(front_x) - (length -1)) == ord(back_x):
+            pass
+        elif ((front_y) + (length - 1)) == back_y or ((front_y) - (length - 1)) == back_y:
+            pass
         else:
-            print("Enter a coordinate that is two characters in length.")
-            # self.place_ship()
+            print("The distance between entered coordinates is greater than ship's length. Please re-enter your coordinates.")
+
+    
+    def set_ship(self):
+        front_coords = input("Please enter the starting coordinates of your ship: ")
+        #Verifys that the coordinates were entered in the correct form.
+        if len(front_coords) == 2:
+            if ord("A") <= ord(front_coords[0].upper()) <= ord("J"):
+                front_x = front_coords[0]
+                self.location_front = front_coords 
+                try:
+                    if 0 <= int(front_coords[1]) <= 9:
+                        front_y = int(front_coords[1])
+                        back_coords = input("Please enter the ending coordinates of your ship: ")
+                        if len(back_coords) == 2:
+                            if ord("A") <= ord(back_coords[0].upper()) <= ord("J"):
+                                back_x = back_coords[0]
+                                self.location_back = back_coords
+                                try:    
+                                    if 0 <= int(back_coords[1]) <= 9:
+                                        back_y = int(back_coords[1])
+                                        if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y) or (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
+                                            pass
+                                        elif (front_y + (self.length - 1)) == back_y and (front_x == back_x) or (front_y - (self.length - 1)) == back_y and (front_x == back_x):
+                                            pass
+                                        else:
+                                            print("Out of range")
+                                            self.set_ship()
+                                        print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+                                except ValueError:
+                                    print("**Must enter an integer as the second coordinate character.**\n")
+                                    self.set_ship()
+                            else:
+                                print("**Must enter a letter A through J as the first coordinate character.**\n")
+                                self.set_ship()
+                        else:
+                            print("**Enter a coordinate that is two characters in length.**\n")
+                            self.set_ship()
+                    else:
+                        raise ValueError
+                except ValueError:
+                    print("**Must enter an integer as the second coordinate character.**\n")
+                    self.set_ship()
+            else:
+                print("**Must enter a letter A through J as the first coordinate character.**\n")
+                self.set_ship()
+        else:
+            print("**Enter a coordinate that is two characters in length.**\n")
+            self.set_ship()
+        
+        
 
 #Define class objects for player 1's ships.
 patrol1 = Ship("Patrol Boat", 2)
@@ -52,6 +110,7 @@ class Player:
     def __init__(self, name, ships):
         self.name = name.capitalize()
         self.available_ships = ships
+        self.placed_ships = None
 
 
 #Define player 1 and 2 names through terminal inputs.
@@ -70,7 +129,7 @@ def coin_flip():
 
     #The selected player is asked to select head or tails from a terminal input.
     players_choice = input(random_player.name + " please select HEADS or TAILS: ")
-    print(random_player.name + " you selected " + players_choice + ".")
+    print(random_player.name + " you selected " + players_choice + ".\n")
 
     #Randomly select heads or tails.
     heads_tails = ["HEADS", "TAILS"]
@@ -92,20 +151,10 @@ coin_flip_winner = coin_flip()
 print(coin_flip_winner.name + " goes first.\n")
 
 
-def print_blank_grid():
-    first_row = "  "
-    for i in range(1, 10):
-        first_row += " {} ".format(i)
-    first_row += " 0 "
-    print(first_row)
-    for r in range(10):
-        letter = chr(ord("A") + r)
-        row = letter + " "
-        for c in range(10):
-            row += " - "
-        print(row)
-
 print_blank_grid()
-print("\n" + coin_flip_winner.name + " time to place your ships.")
-print("Available ships: " + str(coin_flip_winner.available_ships))
-patrol1.place_ship()
+# print("\n" + coin_flip_winner.name + " time to place your ships.")
+# print(coin_flip_winner.name + "'s available ships: " + str(coin_flip_winner.available_ships))
+# patrol1.set_front()
+# print(patrol1.location_front)
+# patrol1.set_back()
+patrol1.set_ship()
