@@ -24,22 +24,8 @@ class Ship:
         self.sunk = False
 
     def __repr__(self):
-        return self.name
+        return self.name + " " + str(self.length)
 
-    def front_back_dist_check(self, ship_length, front_coord, back_coord):
-        front_x = front_coord[0]
-        front_y = int(front_coord[1])
-        back_x = back_coord[0]
-        back_y = int(back_coord[1])
-        length = ship_length
-        if (ord(front_x) + (length - 1)) == ord(back_x) or (ord(front_x) - (length -1)) == ord(back_x):
-            pass
-        elif ((front_y) + (length - 1)) == back_y or ((front_y) - (length - 1)) == back_y:
-            pass
-        else:
-            print("The distance between entered coordinates is greater than ship's length. Please re-enter your coordinates.")
-
-    
     def set_ship(self):
         front_coords = input("Please enter the starting coordinates of your ship: ")
         #Verifys that the coordinates were entered in the correct form.
@@ -75,8 +61,6 @@ class Ship:
                         else:
                             print("**Enter a coordinate that is two characters in length.**\n")
                             self.set_ship()
-                    else:
-                        raise ValueError
                 except ValueError:
                     print("**Must enter an integer as the second coordinate character.**\n")
                     self.set_ship()
@@ -109,8 +93,25 @@ player2_ships = [patrol2, submarine2, destroyer2, battleship2, carrier2]
 class Player:
     def __init__(self, name, ships):
         self.name = name.capitalize()
-        self.available_ships = ships
+        self.available_ships = {}
         self.placed_ships = None
+
+        index = 1
+        for ship in ships:
+            self.available_ships[index] = ship
+            index += 1      
+
+    def select_ship(self):    
+        print(self.available_ships)
+        selected_ship = int(input("Listed are your available ships to place. Select a ship 1 - 5 to enter its coordinates: "))
+        try:
+            while selected_ship not in self.available_ships:
+                print("Entered value not found in available ships.")
+                self.select_ship()
+            return self.available_ships[selected_ship]
+        except ValueError:
+            print("Please enter a value 1 - 5 in order to select a ship.")
+            self.select_ship()
 
 
 #Define player 1 and 2 names through terminal inputs.
@@ -135,7 +136,7 @@ def coin_flip():
     heads_tails = ["HEADS", "TAILS"]
     result = random.choice(heads_tails)
 
-    #Print the winning result.
+    #Print the winning result and return winner.
     if result == players_choice.upper():
         print("The coin landed on " + result + "!")
         winner = random_player
@@ -145,16 +146,12 @@ def coin_flip():
         winner = players[0]
     return winner 
 
-
+#Coin flip between players.
 print("\nTime to determine who goes first.")
 coin_flip_winner = coin_flip()
 print(coin_flip_winner.name + " goes first.\n")
 
-
+#Coin flip winner places ships first and will have the first turn.
 print_blank_grid()
-# print("\n" + coin_flip_winner.name + " time to place your ships.")
-# print(coin_flip_winner.name + "'s available ships: " + str(coin_flip_winner.available_ships))
-# patrol1.set_front()
-# print(patrol1.location_front)
-# patrol1.set_back()
-patrol1.set_ship()
+print("\n" + coin_flip_winner.name + " time to place your ships.")
+print(coin_flip_winner.select_ship())
