@@ -37,7 +37,7 @@ class Ship:
     def __repr__(self):
         return self.name + " " + str(self.length)
 
-    # def set_ship(self):
+   # def set_ship(self):
     #     front_coords = input("Please enter the starting coordinates of your ship: ")
     #     if len(front_coords) == 2:
     #         if ord("A") <= ord(front_coords[0].upper()) <= ord("J"):
@@ -233,6 +233,11 @@ class Ship:
     def reset(self, player):
         try:
             for coord in self.all_coords:
+                coord_x = ord(coord[0]) - 64
+                coord_y = int(coord[1])
+                if len(coord) == 3 and coord_y == 1 and int(coord[2]) == 0:
+                    coord_y = int(coord[1:])
+                player.grid[coord_x][coord_y] = " - "
                 player.all_ship_coords.remove(coord)
         except ValueError:
             pass
