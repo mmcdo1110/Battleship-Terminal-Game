@@ -1,17 +1,27 @@
 import random
 
-def print_blank_grid():
-    first_row = "  "
+def new_grid_data():
+    grid_data = []
+    first_row = [" "]
     for i in range(1, 10):
-        first_row += " {} ".format(i)
-    first_row += " 0 "
-    print(first_row)
+        first_row.append(str(i))
+    first_row.append(str(0))
+    grid_data.append(first_row)
     for r in range(10):
-        letter = chr(ord("A") + r)
-        row = letter + " "
+        new_row = []
+        new_row.append(chr(ord("A") + r))
         for c in range(10):
-            row += " - "
-        print(row)
+            new_row.append("-")
+        grid_data.append(new_row)
+    return grid_data
+
+def print_grid(grid_data):
+    for row in grid_data:
+        print_row = ""
+        for col in row:
+            add_col = " " + col + " "
+            print_row += add_col
+        print(print_row)
 
 class Ship:
     def __init__(self, ship_name, ship_length):
@@ -156,13 +166,15 @@ carrier2 = Ship("Aircraft Carrier", 5)
 player2_ships = [patrol2, submarine2, destroyer2, battleship2, carrier2]
 
 class Player:
-    def __init__(self, name, ships):
+    def __init__(self, name, ships, grid):
         self.name = name.capitalize()
+        self.ships = ships
+        self.grid = grid
         self.available_ships = {}
         self.placed_ships = None
 
         index = 1
-        for ship in ships:
+        for ship in self.ships:
             self.available_ships[index] = ship
             index += 1      
 
@@ -175,15 +187,15 @@ class Player:
                     continue
                 if selected_ship not in self.available_ships:
                     continue
-                return self.available_ships[selected_ship]
+                return self.available_ships.pop(selected_ship)
             except ValueError:
                 continue
 
 #Define player 1 and 2 names through terminal inputs.
 player1_name = input("Please enter the name of player 1: ")
-player1 = Player(player1_name, player1_ships)
+player1 = Player(player1_name, player1_ships, new_grid_data())
 player2_name = input("Please enter the name of player 2: ")
-player2 = Player(player2_name, player2_ships)
+player2 = Player(player2_name, player2_ships, new_grid_data())
 
 #Define a game of head or tails in order to determine who goes first.
 def coin_flip():
@@ -204,20 +216,27 @@ def coin_flip():
     if result == players_choice.upper():
         print("The coin landed on " + result + "!")
         winner = random_player
+        players.remove(random_player)
+        loser = players[0]
     else:
         print("The coin landed on " + result + "!")
+        loser = random_player
         players.remove(random_player)
         winner = players[0]
-    return winner 
+    return winner, loser 
 
-#Coin flip between players.
+#Coin flip between players. Redefine player 1 and player 2 objects.
 print("\nTime to determine who goes first.")
-coin_flip_winner = coin_flip()
-print(coin_flip_winner.name + " goes first.\n")
+player1, player2 = coin_flip()
+print(player1.name + " goes first.\n")
 
 #Coin flip winner places ships first and will have the first turn.
-print_blank_grid()
-print("\n" + coin_flip_winner.name + " time to place your ships.")
+print_grid(new_grid_data())
+print("\n" + player1.name + " time to place your ships.")
 
-selected_ship = (coin_flip_winner.select_ship())
-selected_ship.set_ship()
+while len(player1.available_ships) > 0:
+    selected_ship = (player1.select_ship())
+    selected_ship.set_ship()
+    
+for ship in player1.ships:
+    print(ship.name + ": [" + ship.location_front + ", " + ship.location_back + "]")
