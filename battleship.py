@@ -2,26 +2,58 @@ import random
 
 def new_grid_data():
     grid_data = []
-    first_row = [" "]
+    first_row = ["  "]
     for i in range(1, 10):
-        first_row.append(str(i))
-    first_row.append(str(0))
+        first_row.append(" {} ".format(i))
+    first_row.append(" {} ".format(0))
     grid_data.append(first_row)
     for r in range(10):
         new_row = []
-        new_row.append(chr(ord("A") + r))
+        new_row.append(chr(ord("A") + r) + " ")
         for c in range(10):
-            new_row.append("-")
+            new_row.append(" - ")
         grid_data.append(new_row)
     return grid_data
 
 def print_grid(grid_data):
+    print("\n")
     for row in grid_data:
         print_row = ""
         for col in row:
-            add_col = " " + col + " "
+            add_col = col
             print_row += add_col
         print(print_row)
+    print("\n")
+
+def add_ship_to_grid(ship, grid_data):
+    front_x = (ord(ship.location_front[0]) - 64)  #B
+    front_y = int(ship.location_front[1])         #6
+    back_x = (ord(ship.location_back[0]) - 64)    #D
+    back_y = int(ship.location_back[1])           #6
+
+    grid_data[front_x][front_y] = "[ ]"
+    grid_data[back_x][back_y] = "[ ]"
+    
+    dist_x = (back_x - front_x)
+    dist_y = (back_y - front_y)
+
+    if dist_x == 0:
+        if dist_y > 0:
+            for i in range(dist_y):
+                grid_data[front_x][front_y + i] = "[ ]"
+        elif dist_y < 0:
+            for i in range(abs(dist_y)):
+                grid_data[front_x][front_y - i] = "[ ]"
+
+    elif dist_y == 0:
+        if dist_x > 0:
+            for i in range(dist_x):
+                grid_data[front_x + i][front_y] = "[ ]"
+        elif dist_x < 0:
+            for i in range(abs(dist_x)):
+                grid_data[front_x - i][front_y] = "[ ]"
+
+    print_grid(grid_data)
 
 class Ship:
     def __init__(self, ship_name, ship_length):
@@ -108,7 +140,7 @@ class Ship:
             break
 
         while True:
-            back_coords = input("Enter the ending coordinates for your " + self.name + ": [" + front_coords + ", ")
+            back_coords = input("Enter the ending coordinates for your " + self.name + ": [" + front_coords.upper() + ", ")
             if len(back_coords) != 2:
                 print("*Must enter a coordinate that is two characters in length.*")
                 continue
@@ -124,27 +156,27 @@ class Ship:
                 print("*Must enter an integer as the second coordinate character.*")
                 continue
 
-            front_x = front_coords[0]
-            back_x = back_coords[0]
+            front_x = front_coords[0].upper()
+            back_x = back_coords[0].upper()
             if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y):
-                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
-                self.location_front = front_coords
-                self.location_back = back_coords
+                print(self.name + " set at [" + front_coords.upper() + ", " + back_coords.upper() + "].")
+                self.location_front = front_coords.upper()
+                self.location_back = back_coords.upper()
                 break
             elif (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
-                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
-                self.location_front = front_coords
-                self.location_back = back_coords
+                print(self.name + " set at [" + front_coords.upper() + ", " + back_coords.upper() + "].")
+                self.location_front = front_coords.upper()
+                self.location_back = back_coords.upper()
                 break
             elif (front_y + (self.length - 1)) == back_y and (front_x == back_x):
-                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
-                self.location_front = front_coords
-                self.location_back = back_coords
+                print(self.name + " set at [" + front_coords.upper() + ", " + back_coords.upper() + "].")
+                self.location_front = front_coords.upper()
+                self.location_back = back_coords.upper()
                 break
             elif (front_y - (self.length - 1)) == back_y and (front_x == back_x):
-                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
-                self.location_front = front_coords
-                self.location_back = back_coords
+                print(self.name + " set at [" + front_coords.upper() + ", " + back_coords.upper() + "].")
+                self.location_front = front_coords.upper()
+                self.location_back = back_coords.upper()
                 break
             else:
                 print("Entered coordinates are not within ships range. Please try again.")
@@ -196,15 +228,16 @@ player1_name = input("Please enter the name of player 1: ")
 player1 = Player(player1_name, player1_ships, new_grid_data())
 player2_name = input("Please enter the name of player 2: ")
 player2 = Player(player2_name, player2_ships, new_grid_data())
+print("\n")
 
-#Define a game of head or tails in order to determine who goes first.
+#Define a game of head or tails.
 def coin_flip():
 
-    #The player to select heads or tails is also selected at random, adding another level of probability.
+    #Player to select heads or tails is also selected at random, adding another level of probability.
     players = [player1, player2]
     random_player = random.choice(players)
 
-    #The selected player is asked to select head or tails from a terminal input.
+    #Selected player is asked to select head or tails from a terminal input.
     players_choice = input(random_player.name + " please select HEADS or TAILS: ")
     print(random_player.name + " you selected " + players_choice + ".\n")
 
@@ -212,7 +245,7 @@ def coin_flip():
     heads_tails = ["HEADS", "TAILS"]
     result = random.choice(heads_tails)
 
-    #Print the winning result and return winner.
+    #Print the winning result and return winner and loser.
     if result == players_choice.upper():
         print("The coin landed on " + result + "!")
         winner = random_player
@@ -225,18 +258,21 @@ def coin_flip():
         winner = players[0]
     return winner, loser 
 
-#Coin flip between players. Redefine player 1 and player 2 objects.
-print("\nTime to determine who goes first.")
+#Coin flip between players determines who goes first. Redefine player 1 and player 2 objects based on winner and loser of coin flip.
+print("Time to determine who goes first.")
 player1, player2 = coin_flip()
-print(player1.name + " goes first.\n")
+print(player1.name + " goes first.")
 
 #Coin flip winner places ships first and will have the first turn.
-print_grid(new_grid_data())
-print("\n" + player1.name + " time to place your ships.")
+print_grid(player1.grid)
+print(player1.name + " time to place your ships.")
+selected_ship = (player1.select_ship())
+selected_ship.set_ship()
+add_ship_to_grid(selected_ship, player1.grid)
 
-while len(player1.available_ships) > 0:
-    selected_ship = (player1.select_ship())
-    selected_ship.set_ship()
+# while len(player1.available_ships) > 0:
+#     selected_ship = (player1.select_ship())
+#     selected_ship.set_ship()
     
-for ship in player1.ships:
-    print(ship.name + ": [" + ship.location_front + ", " + ship.location_back + "]")
+# for ship in player1.ships:
+#     print(ship.name + ": is located at [" + ship.location_front + ", " + ship.location_back + "]")
