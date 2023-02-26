@@ -1,6 +1,5 @@
 import random
 
-
 def print_blank_grid():
     first_row = "  "
     for i in range(1, 10):
@@ -14,7 +13,6 @@ def print_blank_grid():
             row += " - "
         print(row)
 
-
 class Ship:
     def __init__(self, ship_name, ship_length):
         self.name = ship_name
@@ -26,52 +24,120 @@ class Ship:
     def __repr__(self):
         return self.name + " " + str(self.length)
 
+    # def set_ship(self):
+    #     front_coords = input("Please enter the starting coordinates of your ship: ")
+    #     if len(front_coords) == 2:
+    #         if ord("A") <= ord(front_coords[0].upper()) <= ord("J"):
+    #             self.location_front = front_coords 
+    #             try:
+    #                 front_y = int(front_coords[1])
+    #                 if 0 <= front_y <= 9:
+    #                     back_coords = input("Please enter the ending coordinates of your ship: ")
+    #                     if len(back_coords) == 2:
+    #                         if ord("A") <= ord(back_coords[0].upper()) <= ord("J"):
+    #                             back_x = back_coords[0]
+    #                             self.location_back = back_coords
+    #                             try:
+    #                                 back_y = int(back_coords[1])    
+    #                                 if 0 <= back_y <= 9:
+    #                                     front_x = front_coords[0]
+    #                                     if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y):
+    #                                         print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+    #                                     elif (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
+    #                                         print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+    #                                     elif (front_y + (self.length - 1)) == back_y and (front_x == back_x):
+    #                                         print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+    #                                     elif (front_y - (self.length - 1)) == back_y and (front_x == back_x):
+    #                                         print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+    #                                     else:
+    #                                         print("Out of range")
+    #                                         self.set_ship()
+    #                                     print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+    #                                 else:
+    #                                     print("**Must enter an integer between 0 and 9 as the second coordinate character.**")
+    #                                     self.set_ship()
+    #                             except ValueError:
+    #                                 print("**Must enter an integer as the second coordinate character.**")
+    #                                 self.set_ship()
+    #                         else:
+    #                             print("**Must enter a letter between A and J as the first coordinate character.**")
+    #                             self.set_ship()
+    #                     else:
+    #                         print("**Must enter a coordinate that is two characters in length.**")
+    #                         self.set_ship()
+    #                 else:
+    #                     print("**Must enter an integer between 0 and 9 as the second coordinate character.**")
+    #                     self.set_ship()
+    #             except ValueError:
+    #                 print("**Must enter an integer as the second coordinate character.**")
+    #                 self.set_ship()
+    #         else:
+    #             print("**Must enter a letter between A and J as the first coordinate character.**")
+    #             self.set_ship()
+    #     else:
+    #         print("**Must enter a coordinate that is two characters in length.**")
+    #         self.set_ship()
+
     def set_ship(self):
-        front_coords = input("Please enter the starting coordinates of your ship: ")
-        #Verifys that the coordinates were entered in the correct form.
-        if len(front_coords) == 2:
-            if ord("A") <= ord(front_coords[0].upper()) <= ord("J"):
-                front_x = front_coords[0]
-                self.location_front = front_coords 
-                try:
-                    if 0 <= int(front_coords[1]) <= 9:
-                        front_y = int(front_coords[1])
-                        back_coords = input("Please enter the ending coordinates of your ship: ")
-                        if len(back_coords) == 2:
-                            if ord("A") <= ord(back_coords[0].upper()) <= ord("J"):
-                                back_x = back_coords[0]
-                                self.location_back = back_coords
-                                try:    
-                                    if 0 <= int(back_coords[1]) <= 9:
-                                        back_y = int(back_coords[1])
-                                        if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y) or (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
-                                            pass
-                                        elif (front_y + (self.length - 1)) == back_y and (front_x == back_x) or (front_y - (self.length - 1)) == back_y and (front_x == back_x):
-                                            pass
-                                        else:
-                                            print("Out of range")
-                                            self.set_ship()
-                                        print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
-                                except ValueError:
-                                    print("**Must enter an integer as the second coordinate character.**\n")
-                                    self.set_ship()
-                            else:
-                                print("**Must enter a letter A through J as the first coordinate character.**\n")
-                                self.set_ship()
-                        else:
-                            print("**Enter a coordinate that is two characters in length.**\n")
-                            self.set_ship()
-                except ValueError:
-                    print("**Must enter an integer as the second coordinate character.**\n")
-                    self.set_ship()
+        while True:
+            front_coords = input("Enter the starting coordinates for your " + self.name + ": [")
+            if len(front_coords) != 2:
+                print("*Must enter a coordinate that is two characters in length.*")
+                continue
+            if not "A" <= front_coords[0].upper() <= "J":
+                print("*Must enter a letter between A and J as the first coordinate character.*")
+                continue
+            try:
+                front_y = int(front_coords[1])
+                if not 0 <= front_y <= 9:
+                    print("*Must enter an integer between 0 and 9 as the second coordinate character.*")
+                    continue
+            except ValueError:
+                print("*Must enter an integer as the second coordinate character.*")
+                continue
+            break
+
+        while True:
+            back_coords = input("Enter the ending coordinates for your " + self.name + ": [" + front_coords + ", ")
+            if len(back_coords) != 2:
+                print("*Must enter a coordinate that is two characters in length.*")
+                continue
+            if not "A" <= back_coords[0].upper() <= "J":
+                print("*Must enter a letter between A and J as the first coordinate character.*")
+                continue
+            try:
+                back_y = int(back_coords[1])
+                if not 0 <= back_y <= 9:
+                    print("*Must enter an integer between 0 and 9 as the second coordinate character.*")
+                    continue
+            except ValueError:
+                print("*Must enter an integer as the second coordinate character.*")
+                continue
+
+            front_x = front_coords[0]
+            back_x = back_coords[0]
+            if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y):
+                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+                self.location_front = front_coords
+                self.location_back = back_coords
+                break
+            elif (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
+                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+                self.location_front = front_coords
+                self.location_back = back_coords
+                break
+            elif (front_y + (self.length - 1)) == back_y and (front_x == back_x):
+                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+                self.location_front = front_coords
+                self.location_back = back_coords
+                break
+            elif (front_y - (self.length - 1)) == back_y and (front_x == back_x):
+                print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
+                self.location_front = front_coords
+                self.location_back = back_coords
+                break
             else:
-                print("**Must enter a letter A through J as the first coordinate character.**\n")
-                self.set_ship()
-        else:
-            print("**Enter a coordinate that is two characters in length.**\n")
-            self.set_ship()
-        
-        
+                print("Entered coordinates are not within ships range. Please try again.")
 
 #Define class objects for player 1's ships.
 patrol1 = Ship("Patrol Boat", 2)
@@ -89,7 +155,6 @@ battleship2 = Ship("Battleship", 4)
 carrier2 = Ship("Aircraft Carrier", 5)
 player2_ships = [patrol2, submarine2, destroyer2, battleship2, carrier2]
 
-
 class Player:
     def __init__(self, name, ships):
         self.name = name.capitalize()
@@ -103,23 +168,22 @@ class Player:
 
     def select_ship(self):    
         print(self.available_ships)
-        selected_ship = int(input("Listed are your available ships to place. Select a ship 1 - 5 to enter its coordinates: "))
-        try:
-            while selected_ship not in self.available_ships:
-                print("Entered value not found in available ships.")
-                self.select_ship()
-            return self.available_ships[selected_ship]
-        except ValueError:
-            print("Please enter a value 1 - 5 in order to select a ship.")
-            self.select_ship()
-
+        while True:
+            try:
+                selected_ship = int(input("Please enter a value between 1-5 to select a ship and enter its coordinates: "))
+                if selected_ship not in range(1,6):
+                    continue
+                if selected_ship not in self.available_ships:
+                    continue
+                return self.available_ships[selected_ship]
+            except ValueError:
+                continue
 
 #Define player 1 and 2 names through terminal inputs.
 player1_name = input("Please enter the name of player 1: ")
 player1 = Player(player1_name, player1_ships)
 player2_name = input("Please enter the name of player 2: ")
 player2 = Player(player2_name, player2_ships)
-
 
 #Define a game of head or tails in order to determine who goes first.
 def coin_flip():
@@ -154,4 +218,6 @@ print(coin_flip_winner.name + " goes first.\n")
 #Coin flip winner places ships first and will have the first turn.
 print_blank_grid()
 print("\n" + coin_flip_winner.name + " time to place your ships.")
-print(coin_flip_winner.select_ship())
+
+selected_ship = (coin_flip_winner.select_ship())
+selected_ship.set_ship()
