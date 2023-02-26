@@ -31,6 +31,7 @@ class Ship:
         self.length = ship_length
         self.location_front = None
         self.location_back = None
+        self.all_coords = []
         self.sunk = False
 
     def __repr__(self):
@@ -90,13 +91,13 @@ class Ship:
     #         print("**Must enter a coordinate that is two characters in length.**")
     #         self.set_ship()
 
-    def place_ship(self):
+    def place_ship(self, player):
         while True:
             front_coords = input("Enter the starting coordinates for your " + self.name + ": [").upper()
             if len(front_coords) != 2:
                 print("*Must enter a coordinate that is two characters in length.*")
                 continue
-            if not "A" <= front_coords[0].upper() <= "J":
+            if not "A" <= front_coords[0] <= "J":
                 print("*Must enter a letter between A and J as the first coordinate character.*")
                 continue
             try:
@@ -114,7 +115,7 @@ class Ship:
             if len(back_coords) != 2:
                 print("*Must enter a coordinate that is two characters in length.*")
                 continue
-            if not "A" <= back_coords[0].upper() <= "J":
+            if not "A" <= back_coords[0] <= "J":
                 print("*Must enter a letter between A and J as the first coordinate character.*")
                 continue
             try:
@@ -125,73 +126,80 @@ class Ship:
             except ValueError:
                 print("*Must enter an integer as the second coordinate character.*")
                 continue
-            
+
+            front_x = front_coords[0]
+            back_x = back_coords[0]
+
             if front_y == 0:
                 front_y = 10
             if back_y == 0:
                 back_y = 10
-
-            front_x = front_coords[0].upper()
-            back_x = back_coords[0].upper()
-    
-            def find_all_coords(self):
-                all_coords = []
-                # all_coords.append(self.location_front)
-                # all_coords.append(self.location_back)
+            
+            def find_all_coords(self, player):
                 dist_x = ord(back_x) - ord(front_x)
                 dist_y = back_y - front_y
                 if front_x == back_x:
                     if dist_y > 0:
                         for i in range(self.length):
                             new_coord = front_x + str(front_y + i)
-                            all_coords.append(new_coord)
+                            self.all_coords.append(new_coord)
                     elif dist_y < 0:
                         for i in range(self.length):
                             new_coord = front_x + str(front_y - i)
-                            all_coords.append(new_coord)
+                            self.all_coords.append(new_coord)
                 elif front_y == back_y:
                     if dist_x > 0:
                         for i in range(self.length):
                             new_coord = chr(ord(front_x) + i) + str(front_y)
-                            all_coords.append(new_coord)
+                            self.all_coords.append(new_coord)
                     elif dist_x < 0:
                         for i in range (self.length):
                             new_coord = chr(ord(front_x) - i) + str(front_y)
-                            all_coords.append(new_coord)
-                print(all_coords)
+                            self.all_coords.append(new_coord)    
+                for coord in self.all_coords:
+                    if coord not in player.all_ship_coords:
+                        player.all_ship_coords.append(coord)
+                    else:
+                        print("One or more spaces already occupied by another ship! Try again!")
+                        self.reset(player)
+                        return
 
             if (ord(front_x) + (self.length - 1)) == ord(back_x) and (front_y == back_y):
                 print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
                 self.location_front = front_coords
                 self.location_back = back_coords
-                find_all_coords(self)
+                find_all_coords(self, player)
+                self.add_to_grid(player.grid)
                 break
             elif (ord(front_x) - (self.length - 1)) == ord(back_x) and (front_y == back_y):
                 print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
                 self.location_front = front_coords
                 self.location_back = back_coords
-                find_all_coords(self)
+                find_all_coords(self, player)
+                self.add_to_grid(player.grid)
                 break
             elif (front_y + (self.length - 1)) == back_y and (front_x == back_x):
                 print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
                 self.location_front = front_coords
                 self.location_back = back_coords
-                find_all_coords(self)
+                find_all_coords(self, player)
+                self.add_to_grid(player.grid)
                 break
             elif (front_y - (self.length - 1)) == back_y and (front_x == back_x):
                 print(self.name + " set at [" + front_coords + ", " + back_coords + "].")
                 self.location_front = front_coords
                 self.location_back = back_coords
-                find_all_coords(self)
+                find_all_coords(self, player)
+                self.add_to_grid(player.grid)
                 break
             else:
                 print("Entered coordinates are not within ships range. Please try again.")
 
     def add_to_grid(self, grid_data):
-        front_x = (ord(self.location_front[0]) - 64)  #B
-        front_y = int(self.location_front[1])         #6
-        back_x = (ord(self.location_back[0]) - 64)    #D
-        back_y = int(self.location_back[1])           #6
+        front_x = (ord(self.location_front[0]) - 64)
+        front_y = int(self.location_front[1])
+        back_x = (ord(self.location_back[0]) - 64)
+        back_y = int(self.location_back[1])
 
         if front_y == 0:
             front_y = 10
@@ -222,6 +230,17 @@ class Ship:
 
         print_grid(grid_data)
 
+    def reset(self, player):
+        try:
+            for coord in self.all_coords:
+                player.all_ship_coords.remove(coord)
+        except ValueError:
+            pass
+        self.location_front = None
+        self.location_back = None
+        self.all_coords = []
+        self.place_ship(player)
+
 class Player:
     def __init__(self, name, ships, grid):
         self.name = name.capitalize()
@@ -229,6 +248,7 @@ class Player:
         self.grid = grid
         self.available_ships = {}
         self.placed_ships = None
+        self.all_ship_coords = []
 
         index = 1
         for ship in self.ships:
@@ -236,10 +256,10 @@ class Player:
             index += 1      
 
     def select_ship(self):    
-        print(self.available_ships)
+        print(list(self.available_ships.items()))
         while True:
             try:
-                selected_ship = int(input("Please enter a value between 1-5 to select a ship and enter its coordinates: "))
+                selected_ship = int(input("Please enter a value {} to select a ship and enter its coordinates: ".format(list(self.available_ships.keys()))))
                 if selected_ship not in range(1,6):
                     continue
                 if selected_ship not in self.available_ships:
@@ -310,13 +330,16 @@ print(player1.name + " goes first.")
 #Coin flip winner places ships first and will have the first turn.
 print_grid(player1.grid)
 print(player1.name + " time to place your ships.")
+
 selected_ship = (player1.select_ship())
-selected_ship.place_ship()
-selected_ship.add_to_grid(player1.grid)
+selected_ship.place_ship(player1)
+selected_ship.reset(player1)
 
 # while len(player1.available_ships) > 0:
 #     selected_ship = (player1.select_ship())
-#     selected_ship.place_ship()
+#     selected_ship.place_ship(player1)
     
 # for ship in player1.ships:
 #     print(ship.name + ": is located at [" + ship.location_front + ", " + ship.location_back + "]")
+
+print(player1.all_ship_coords)
