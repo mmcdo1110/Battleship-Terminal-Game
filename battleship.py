@@ -272,6 +272,15 @@ class Player:
                 return self.available_ships.pop(selected_ship)
             except ValueError:
                 continue
+    
+    def print_confirm(self):    
+        for ship in self.ships:
+            print(ship.name + ": is located at [" + ship.location_front + ", " + ship.location_back + "].")
+            player_choice = str(input("Confirm placement? (Y/N): ").upper())
+            if player_choice == "Y":
+                continue
+            elif player_choice == "N":
+                ship.reset(self)
 
     def fire(self):
         pass
@@ -336,15 +345,16 @@ print(player1.name + " goes first.")
 print_grid(player1.grid)
 print(player1.name + " time to place your ships.")
 
-selected_ship = (player1.select_ship())
-selected_ship.place_ship(player1)
-selected_ship.reset(player1)
+while len(player1.available_ships) > 0:
+    selected_ship = (player1.select_ship())
+    selected_ship.place_ship(player1)
 
-# while len(player1.available_ships) > 0:
-#     selected_ship = (player1.select_ship())
-#     selected_ship.place_ship(player1)
-    
-# for ship in player1.ships:
-#     print(ship.name + ": is located at [" + ship.location_front + ", " + ship.location_back + "]")
+player1.print_confirm()
+
+# selected_ship = (player1.select_ship())
+# selected_ship.place_ship(player1)
+# selected_ship.reset(player1)
+
+print(player2.name + " time to place your ships.")
 
 print(player1.all_ship_coords)
