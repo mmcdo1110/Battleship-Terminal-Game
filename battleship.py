@@ -61,6 +61,10 @@ class Ship:
                     if not 0 <= front_y <= 9: #Check if second character is between 0-9.
                         print("*Must enter an integer between 0 and 9 as the second coordinate character.*")
                         continue
+                    if front_y == 0:
+                        front_y = 10
+                        front_coords = chr(front_x) + str(front_y)
+
                 except ValueError: #Catch error if second character is not an integer.
                     print("*Must enter an integer as the second coordinate character.*")
                     continue
@@ -87,25 +91,35 @@ class Ship:
                         if not 0 <= back_y <= 9: #Check if second character is between 0-9.
                             print("*Must enter an integer between 0 and 9 as the second coordinate character.*")
                             continue
+                        if back_y == 0:
+                            back_y = 10
+                            back_coords = chr(back_x) + str(back_y)
+
                     except ValueError: #Catch error if second character is not an integer.
                         print("*Must enter an integer as the second coordinate character.*")
                         continue
 
+                    dist_x = back_x - front_x
+                    dist_y = back_y - front_y
+
                     if back_coords in player.all_ship_coords: #Check if entered coordinate has already been assigned to another ship.
                         print("The entered coordinate is already occupied by another ship! Try again!")
                         continue
-                    break
-
-                if front_y == 0:
-                    front_y = 10
-                if back_y == 0:
-                    back_y = 10
-
-                dist_x = back_x - front_x
-                dist_y = back_y - front_y
-                new_coords = []
+                    if dist_x == 0 and (front_y + (self.length - 1)) == back_y: #Horizontal (L to R)
+                        break
+                    elif dist_x == 0 and (front_y - (self.length - 1)) == back_y: #Horizontal (R to L)
+                        break
+                    elif dist_y == 0 and (front_x + (self.length - 1)) == back_x: #Vertical (Top to Bottom)
+                        break
+                    elif dist_y == 0 and (front_x - (self.length - 1)) == back_x: #Vertical (Bottom to Top)
+                        break
+                    else:
+                        print("Entered coordinates are not within ships range. Please try again! Ships length: " + str(self.length))
+                        continue
 
                 print("Starting to find all coords for ship.")
+
+                new_coords = []
 
                 if dist_x == 0: #Horizontal
                     if dist_y > 0: #Left => Right
@@ -156,18 +170,6 @@ class Ship:
         print(self.name + " added to grid.")
         print(self.name + " set at [" + front_coords + ", " + back_coords + "]." + " (Bottom to Top)")
         print_grid(player.grid)
-            
-        # #Check if the entered coordinates are on the same row/column and of equal distance to the length of the ship being entered.
-        # if dist_x == 0 and (front_y + (self.length - 1)) == back_y: #Horizontal (L to R)
-
-        # elif dist_x == 0 and (front_y - (self.length - 1)) == back_y: #Horizontal (R to L)
-
-        # elif dist_y == 0 and (front_x + (self.length - 1)) == back_x: #Vertical (Top to Bottom)
-
-        # elif dist_y == 0 and (front_x - (self.length - 1)) == back_x: #Vertical (Bottom to Top)
-            
-        # else:
-        #     print("Entered coordinates are not within ships range. Please try again.")
 
     def reset(self, player):
         print("Relocating " + self.name + "...")
@@ -283,7 +285,6 @@ print(player1.name + " goes first.")
 
 #Coin flip winner places ships first and will have the first turn.
 print_grid(new_grid_data())
-
 print(player1.name + " time to place your ships.")
 
 while len(player1.available_ships) > 0:
@@ -291,7 +292,8 @@ while len(player1.available_ships) > 0:
     selected_ship.place_ship(player1)
 
 player1.print_confirm()
-    
+
+print_grid(new_grid_data())    
 print(player2.name + " time to place your ships.")
 
 while len(player2.available_ships) > 0:
