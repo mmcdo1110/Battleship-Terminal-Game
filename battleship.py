@@ -1,17 +1,9 @@
 import random
 
 def new_grid_data():
-    grid_data = []
-    first_row = ["  "]
-    for i in range(1, 10):
-        first_row.append(" {} ".format(i))
-    first_row.append(" {} ".format(0))
-    grid_data.append(first_row)
+    grid_data = [["  "] + [" {} ".format(i) for i in range(1, 10)] + [" {} ".format(0)]]
     for r in range(10):
-        new_row = []
-        new_row.append(chr(ord("A") + r) + " ")
-        for c in range(10):
-            new_row.append(" - ")
+        new_row = [chr(ord("A") + r) + " "] + [" - " for c in range(10)]
         grid_data.append(new_row)
     return grid_data
 
@@ -19,8 +11,7 @@ def print_grid(grid_data):
     for row in grid_data:
         print_row = ""
         for col in row:
-            add_col = col
-            print_row += add_col
+            print_row += col
         print(print_row)
 
 class Ship:
@@ -117,41 +108,29 @@ class Ship:
                 new_coords = []
 
                 if dist_x == 0: #Horizontal
-                    if dist_y > 0: #Left => Right
-                        for i in range(self.length):
-                            new_coord = chr(front_x) + str(front_y + i)
-                            new_coords.append(new_coord)
-                    elif dist_y < 0: #Right => Left
-                        for i in range(self.length):
-                            new_coord = chr(front_x) + str(back_y + i)
-                            new_coords.append(new_coord)
+                    for i in range(self.length):
+                        if dist_y > 0: #Left => Right
+                            new_coords.append(chr(front_x) + str(front_y + i))
+                        elif dist_y < 0: #Right => Left
+                            new_coords.append(chr(front_x) + str(back_y + i))
                 elif dist_y == 0: #Vertical
-                    if dist_x > 0: #Top => Bottom
-                        for i in range(self.length):
-                            new_coord = chr(front_x + i) + str(front_y)
-                            new_coords.append(new_coord)
-                    elif dist_x < 0: #Bottom => Top
-                        for i in range (self.length):
-                            new_coord = chr(back_x + i) + str(front_y)
-                            new_coords.append(new_coord)    
-
-                for coord in new_coords:
-                    if coord in player.all_ship_coords:
-                        placed_successfully = False
-                    else:
-                        continue
+                    for i in range(self.length):
+                        if dist_x > 0: #Top => Bottom
+                            new_coords.append(chr(front_x + i) + str(front_y))    
+                        elif dist_x < 0: #Bottom => Top
+                            new_coords.append(chr(back_x + i) + str(front_y))    
 
                 if all(coord not in player.all_ship_coords for coord in new_coords):
                     self.all_coords.extend(new_coords)
                     player.all_ship_coords.extend(new_coords)
                     placed_successfully = True
-                    print(self.all_coords)
-                    print(player.all_ship_coords)
 
                 break
 
         for coord in self.all_coords:
             player.grid[(ord(coord[0]) - 64)][int(coord[1:])] = "[ ]"
+
+        print(self.name + " successfully placed at: ", self.all_coords)
 
     def reset(self, player):
         print("Resetting " + self.name + "...")
@@ -189,8 +168,7 @@ class Player:
         print(self.name + " time to place your ships.")
         while len(self.available_ships) > 0:
             print_grid(self.grid)
-            selected_ship = (self.select_ship())
-            selected_ship.place_ship(self)
+            self.select_ship().place_ship(self)
         self.print_confirm()
 
     def select_ship(self):    
@@ -206,7 +184,10 @@ class Player:
             except ValueError:
                 continue
 
-    def print_confirm(self):    
+    def print_confirm(self):
+
+        print_grid(self.grid)
+
         for ship in self.ships:
             print(ship.name + ": is located at ", ship.all_coords)
             player_choice = str(input("Confirm placement? (Y/N): ").upper())
@@ -260,8 +241,7 @@ class Player:
 
             break
 
-#Define a game of head or tails.
-def coin_flip():
+def coin_flip(): #Define a game of head or tails.
 
     #Player to select heads or tails is also selected at random, adding another level of probability.
     players = [player1, player2]
