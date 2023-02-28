@@ -186,13 +186,17 @@ class Ship:
             pass
 
 class Player:
-    def __init__(self, name, ships, grid):
+    def __init__(self, name, ships):
         self.name = name.capitalize()
         self.ships = ships
-        self.grid = grid
+
+        self.grid = new_grid_data()
+        self.grid_shots = new_grid_data()
+
         self.available_ships = {}
-        self.placed_ships = None
         self.all_ship_coords = []
+        self.shots_fired = []
+        self.hits = []
 
         index = 1
         for ship in self.ships:
@@ -224,8 +228,49 @@ class Player:
             elif player_choice == "N":
                 ship.reset(self)
 
-    def fire(self):
-        pass
+    def fire(self, opponent):
+        
+        while True: #Loop until coordinate is entered in the correct format.
+
+            #User inputs coordinate with auto-capitalization.
+            shot_coord = input(self.name + " please enter a coordinate: ").upper()
+
+            if len(shot_coord) != 2: #Check if input is two characters long.
+                print("*Must enter a coordinate that is two characters in length.*")
+                continue
+            if not "A" <= shot_coord[0] <= "J": #Check if first character is between A-J.
+                print("*Must enter a letter between A and J as the first coordinate character.*")
+                continue
+
+            try: #Check if second character is an integer.
+                shot_x = ord(shot_coord[0])
+                shot_y = int(shot_coord[1])
+                if not 0 <= shot_y <= 9: #Check if second character is between 0-9.
+                    print("*Must enter an integer between 0 and 9 as the second coordinate character.*")
+                    continue
+                if shot_y == 0:
+                    shot_y = 10
+                    shot_coord = chr(shot_x) + str(shot_y)
+            except ValueError: #Catch error if second character is not an integer.
+                print("*Must enter an integer as the second coordinate character.*")
+                continue
+
+            if shot_coord in self.shots_fired:
+                input("You have already fired this shot. Do you want to fire it again? (Y/N): ")
+                continue
+            
+            self.shots_fired.append(shot_coord)
+            print(shot_x, shot_y)
+            if shot_coord in opponent.all_ship_coords: #Check if entered coordinate is in the opponent's all_ship_coords.
+                print("HIT!")
+                opponent.all_ship_coords.remove(shot_coord)
+                self.grid_shots[shot_x - 64][shot_y] = "[X]"
+            else:
+                print("MISS!")
+                self.grid_shots[shot_x - 64][shot_y] = " 0 "
+            print_grid(self.grid_shots)
+
+            break
 
 #Define a game of head or tails.
 def coin_flip():
@@ -273,17 +318,15 @@ player2_ships = [patrol2, submarine2, destroyer2, battleship2, carrier2]
 
 #Define player 1 and 2 names through terminal inputs.
 player1_name = input("Please enter the name of player 1: ")
-player1 = Player(player1_name, player1_ships, new_grid_data())
+player1 = Player(player1_name, player1_ships)
 player2_name = input("Please enter the name of player 2: ")
-player2 = Player(player2_name, player2_ships, new_grid_data())
+player2 = Player(player2_name, player2_ships)
 print("\n")
 
-#Coin flip between players determines who goes first. Redefine player 1 and player 2 objects based on winner and loser of coin flip.
 print("Time to determine who goes first.")
 player1, player2 = coin_flip()
 print(player1.name + " goes first.")
 
-#Coin flip winner places ships first and will have the first turn.
 print_grid(new_grid_data())
 print(player1.name + " time to place your ships.")
 
@@ -301,3 +344,19 @@ while len(player2.available_ships) > 0:
     selected_ship.place_ship(player2)
 
 player2.print_confirm()
+
+print("Ships have been placed. Prepare for battle!")
+
+while len(player1.all_ship_coords) > 0 and len(player2.all_ship_coords) > 0:
+
+    print_grid(player1.grid_shots)
+    player1.fire(player2)
+    if len(player2.all_ship_coords) == 0:
+        print(player1.name + " is the winner!")
+        break
+
+    print_grid(player2.grid_shots)
+    player2.fire(player1)
+    if len(player1.all_ship_coords) == 0:
+        print(player2.name + " is the winner!")
+        break
