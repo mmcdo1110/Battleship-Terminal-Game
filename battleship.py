@@ -185,6 +185,14 @@ class Player:
     def __repr__(self):
         return self.name
 
+    def setup(self):
+        print(self.name + " time to place your ships.")
+        while len(self.available_ships) > 0:
+            print_grid(self.grid)
+            selected_ship = (self.select_ship())
+            selected_ship.place_ship(self)
+        self.print_confirm()
+
     def select_ship(self):    
         print(list(self.available_ships.items()))
         while True:
@@ -208,6 +216,8 @@ class Player:
                 ship.reset(self)
 
     def fire(self, opponent):
+
+        print_grid(self.grid_shots)
         
         while True: #Loop until coordinate is entered in the correct format.
 
@@ -239,6 +249,7 @@ class Player:
                 continue
             
             self.shots_fired.append(shot_coord)
+
             if shot_coord in opponent.all_ship_coords: #Check if entered coordinate is in the opponent's all_ship_coords.
                 print("HIT!")
                 opponent.all_ship_coords.remove(shot_coord)
@@ -246,7 +257,6 @@ class Player:
             else:
                 print("MISS.")
                 self.grid_shots[shot_x - 64][shot_y] = " 0 "
-            print_grid(self.grid_shots)
 
             break
 
@@ -298,41 +308,23 @@ player1_name = input("Please enter the name of player 1: ")
 player1 = Player(player1_name, player1_ships)
 player2_name = input("Please enter the name of player 2: ")
 player2 = Player(player2_name, player2_ships)
-print("\n")
 
-print("Time to determine who goes first.")
+print("\nTime to determine who goes first.")
 player1, player2 = coin_flip()
 print(player1.name + " goes first.")
 
-print(player1.name + " time to place your ships.")
-
-while len(player1.available_ships) > 0:
-    print_grid(player1.grid)
-    selected_ship = (player1.select_ship())
-    selected_ship.place_ship(player1)
-
-player1.print_confirm()
- 
-print(player2.name + " time to place your ships.")
-
-while len(player2.available_ships) > 0:
-    print_grid(player2.grid)
-    selected_ship = (player2.select_ship())
-    selected_ship.place_ship(player2)
-
-player2.print_confirm()
+player1.setup()
+player2.setup()
 
 print("Both player's ships have been placed. Prepare for battle!")
 
 while len(player1.all_ship_coords) > 0 and len(player2.all_ship_coords) > 0:
 
-    print_grid(player1.grid_shots)
     player1.fire(player2)
     if len(player2.all_ship_coords) == 0:
         print(player1.name + " is the winner!")
         break
 
-    print_grid(player2.grid_shots)
     player2.fire(player1)
     if len(player1.all_ship_coords) == 0:
         print(player2.name + " is the winner!")
