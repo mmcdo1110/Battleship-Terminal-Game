@@ -16,21 +16,17 @@ def new_grid_data():
     return grid_data
 
 def print_grid(grid_data):
-    print("\n")
     for row in grid_data:
         print_row = ""
         for col in row:
             add_col = col
             print_row += add_col
         print(print_row)
-    print("\n")
 
 class Ship:
     def __init__(self, ship_name, ship_length):
         self.name = ship_name
         self.length = ship_length
-        self.location_front = None
-        self.location_back = None
         self.all_coords = []
         self.sunk = False
 
@@ -105,6 +101,7 @@ class Ship:
                     if back_coords in player.all_ship_coords: #Check if entered coordinate has already been assigned to another ship.
                         print("The entered coordinate is already occupied by another ship! Try again!")
                         continue
+
                     if dist_x == 0 and (front_y + (self.length - 1)) == back_y: #Horizontal (L to R)
                         break
                     elif dist_x == 0 and (front_y - (self.length - 1)) == back_y: #Horizontal (R to L)
@@ -116,8 +113,6 @@ class Ship:
                     else:
                         print("Entered coordinates are not within ships range. Please try again! Ships length: " + str(self.length))
                         continue
-
-                print("Starting to find all coords for ship.")
 
                 new_coords = []
 
@@ -140,14 +135,10 @@ class Ship:
                             new_coord = chr(back_x + i) + str(front_y)
                             new_coords.append(new_coord)    
 
-                print("Found all coordinates. Your new coords are:", new_coords)
-
                 for coord in new_coords:
                     if coord in player.all_ship_coords:
-                        print("Coordinate [" + coord + "] already occupied by another ship! Try again!")
                         placed_successfully = False
                     else:
-                        print("Coordinate [" + coord + "] not found in all_ship_coords.")
                         continue
 
                 if all(coord not in player.all_ship_coords for coord in new_coords):
@@ -159,26 +150,14 @@ class Ship:
 
                 break
 
-        print("Adding " + self.name + " to grid.")
-
         for coord in self.all_coords:
-            if len(coord) == 3:
-                player.grid[(ord(coord[0]) - 64)][int(coord[1:])] = "[ ]"
-            else:
-                player.grid[(ord(coord[0]) - 64)][int(coord[1])] = "[ ]"
-                
-        print(self.name + " added to grid.")
-        print(self.name + " set at [" + front_coords + ", " + back_coords + "]." + " (Bottom to Top)")
-        print_grid(player.grid)
+            player.grid[(ord(coord[0]) - 64)][int(coord[1:])] = "[ ]"
 
     def reset(self, player):
-        print("Relocating " + self.name + "...")
+        print("Resetting " + self.name + "...")
         try:
             for coord in self.all_coords:
-                print("Removing coordinate [" + coord + "] from " + player.name + "'s grid.")
-                if len(coord) == 3:
-                    player.grid[ord(coord[0]) - 64][int(coord[1:])] = " - "
-                player.grid[ord(coord[0]) - 64][int(coord[1])] = " - "
+                player.grid[ord(coord[0]) - 64][int(coord[1:])] = " - "
                 player.all_ship_coords.remove(coord)
             self.all_coords = []
             self.place_ship(player)
@@ -256,17 +235,16 @@ class Player:
                 continue
 
             if shot_coord in self.shots_fired:
-                input("You have already fired this shot. Do you want to fire it again? (Y/N): ")
+                print("You have already fired this shot. Please enter a different coordinate.")
                 continue
             
             self.shots_fired.append(shot_coord)
-            print(shot_x, shot_y)
             if shot_coord in opponent.all_ship_coords: #Check if entered coordinate is in the opponent's all_ship_coords.
                 print("HIT!")
                 opponent.all_ship_coords.remove(shot_coord)
                 self.grid_shots[shot_x - 64][shot_y] = "[X]"
             else:
-                print("MISS!")
+                print("MISS.")
                 self.grid_shots[shot_x - 64][shot_y] = " 0 "
             print_grid(self.grid_shots)
 
@@ -289,15 +267,14 @@ def coin_flip():
 
     #Print the winning result and return winner and loser.
     if result == players_choice.upper():
-        print("The coin landed on " + result + "!")
         winner = random_player
         players.remove(random_player)
         loser = players[0]
     else:
-        print("The coin landed on " + result + "!")
         loser = random_player
         players.remove(random_player)
         winner = players[0]
+    print("The coin landed on " + result + "!")
     return winner, loser 
 
 #Define class objects for player 1's ships.
@@ -327,25 +304,25 @@ print("Time to determine who goes first.")
 player1, player2 = coin_flip()
 print(player1.name + " goes first.")
 
-print_grid(new_grid_data())
 print(player1.name + " time to place your ships.")
 
 while len(player1.available_ships) > 0:
+    print_grid(player1.grid)
     selected_ship = (player1.select_ship())
     selected_ship.place_ship(player1)
 
 player1.print_confirm()
-
-print_grid(new_grid_data())    
+ 
 print(player2.name + " time to place your ships.")
 
 while len(player2.available_ships) > 0:
+    print_grid(player2.grid)
     selected_ship = (player2.select_ship())
     selected_ship.place_ship(player2)
 
 player2.print_confirm()
 
-print("Ships have been placed. Prepare for battle!")
+print("Both player's ships have been placed. Prepare for battle!")
 
 while len(player1.all_ship_coords) > 0 and len(player2.all_ship_coords) > 0:
 
