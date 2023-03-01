@@ -1,7 +1,7 @@
 import random
 
 def new_grid_data():
-    grid_data = [["  "] + [" {} ".format(i) for i in range(1, 10)] + [" {} ".format(0)]]
+    grid_data = [["  "] + [f" {i} " for i in range(1, 10)] + [f" {0} "]]
     for r in range(10):
         new_row = [chr(ord("A") + r) + " "] + [" - " for c in range(10)]
         grid_data.append(new_row)
@@ -22,7 +22,7 @@ class Ship:
         self.sunk = False
 
     def __repr__(self):
-        return self.name + " " + str(self.length)
+        return f"{self.name} {str(self.length)}"
 
     def place_ship(self, player):
 
@@ -33,7 +33,7 @@ class Ship:
             while True:
 
                 #User inputs first coordinate with auto-capitalization.
-                front_coords = input("Enter the starting coordinates for your " + self.name + ": [").upper()
+                front_coords = input(f"Enter the starting coordinates for your {self.name}: [").upper()
                 if len(front_coords) != 2: #Check if input is two characters long.
                     print("*Must enter a coordinate that is two characters in length.*")
                     continue
@@ -63,7 +63,7 @@ class Ship:
                 while True:
 
                     #User inputs second coordinate with auto-capitalization. Displays first coordinate before input.
-                    back_coords = input("Enter the ending coordinates for your " + self.name + ": [" + front_coords.upper() + ", ").upper()
+                    back_coords = input(f"Enter the ending coordinates for your {self.name}: [{front_coords.upper()}, ").upper()
                     if len(back_coords) != 2: #Ceck if input is two characters long.
                         print("*Must enter a coordinate that is two characters in length.*")
                         continue
@@ -102,7 +102,7 @@ class Ship:
                     elif dist_y == 0 and (front_x - (self.length - 1)) == back_x: #Vertical (Bottom to Top)
                         break
                     else:
-                        print("Entered coordinates are not within ships range. Please try again! Ships length: " + str(self.length))
+                        print(f"Entered coordinates are not within ships range. Please try again! Ships length: {str(self.length)}")
                         continue
 
                 new_coords = []
@@ -130,10 +130,10 @@ class Ship:
         for coord in self.all_coords:
             player.grid[(ord(coord[0]) - 64)][int(coord[1:])] = "[ ]"
 
-        print(self.name + " successfully placed at: ", self.all_coords)
+        print(f"{self.name} successfully placed at: {self.all_coords}")
 
     def reset(self, player):
-        print("Resetting " + self.name + "...")
+        print(f"Resetting {self.name}...")
         try:
             for coord in self.all_coords:
                 player.grid[ord(coord[0]) - 64][int(coord[1:])] = " - "
@@ -165,7 +165,7 @@ class Player:
         return self.name
 
     def setup(self):
-        print(self.name + " time to place your ships.")
+        print(f"{self.name} time to place your ships.")
         while len(self.available_ships) > 0:
             print_grid(self.grid)
             if len(self.available_ships) == 1:
@@ -178,7 +178,7 @@ class Player:
         print(list(self.available_ships.items()))
         while True:
             try:
-                selected_ship = int(input("Please enter a value {} to select a ship and enter its coordinates: ".format(list(self.available_ships.keys()))))
+                selected_ship = int(input(f"Please enter a value {list(self.available_ships.keys())} to select a ship and enter its coordinates: "))
                 if selected_ship not in range(1,6):
                     continue
                 if selected_ship not in self.available_ships:
@@ -196,7 +196,7 @@ class Player:
             confirms = 0
 
             for ship in self.ships:
-                print(ship.name + ": is located at ", ship.all_coords)
+                print(f"{ship.name} is located at {ship.all_coords}")
                 player_choice = str(input("Confirm placement? (Y/N): ").upper())
                 if player_choice == "N":
                     ship.reset(self)
@@ -213,7 +213,7 @@ class Player:
         while True: #Loop until coordinate is entered in the correct format.
 
             #User inputs coordinate with auto-capitalization.
-            shot_coord = input(self.name + " please enter a coordinate: ").upper()
+            shot_coord = input(f"{self.name} please enter a coordinate: ").upper()
 
             if len(shot_coord) != 2: #Check if input is two characters long.
                 print("*Must enter a coordinate that is two characters in length.*")
@@ -239,7 +239,7 @@ class Player:
                 print("You have already fired this shot. Please enter a different coordinate.")
                 continue
 
-            confirm_coordinate = input("Confirm shot at: [" + shot_coord + "] (Y/N)?").upper()
+            confirm_coordinate = input(f"Confirm shot at [{shot_coord}]: (Y/N)?").upper()
             if confirm_coordinate == "N":
                 print("Changing shot coordinate.")
                 continue
@@ -271,8 +271,8 @@ def coin_flip(): #Define a game of head or tails.
     random_player = random.choice(players)
 
     #Selected player is asked to select head or tails from a terminal input.
-    players_choice = input(random_player.name + " please select HEADS or TAILS: ")
-    print(random_player.name + " you selected " + players_choice + ".\n")
+    players_choice = input(f"{random_player.name} please select HEADS or TAILS: ")
+    print(f"{random_player.name} you selected {players_choice}.\n")
 
     #Randomly select heads or tails.
     heads_tails = ["HEADS", "TAILS"]
@@ -287,7 +287,7 @@ def coin_flip(): #Define a game of head or tails.
         loser = random_player
         players.remove(random_player)
         winner = players[0]
-    print("The coin landed on " + result + "!")
+    print(f"The coin landed on {result}!")
     return winner, loser 
 
 #Define class objects for player 1's ships.
@@ -314,7 +314,7 @@ player2 = Player(player2_name, player2_ships)
 
 print("\nTime to determine who goes first.")
 player1, player2 = coin_flip()
-print(player1.name + " goes first.")
+print(f"{player1.name} goes first.")
 
 player1.setup()
 player2.setup()
@@ -325,10 +325,10 @@ while len(player1.all_ship_coords) > 0 and len(player2.all_ship_coords) > 0:
 
     player1.fire(player2)
     if len(player2.all_ship_coords) == 0:
-        print(player1.name + " is the winner!")
+        print(f"{player1.name} is the winner!")
         break
 
     player2.fire(player1)
     if len(player1.all_ship_coords) == 0:
-        print(player2.name + " is the winner!")
+        print("{player2.name} is the winner!")
         break
