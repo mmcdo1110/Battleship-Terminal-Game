@@ -168,7 +168,10 @@ class Player:
         print(self.name + " time to place your ships.")
         while len(self.available_ships) > 0:
             print_grid(self.grid)
-            self.select_ship().place_ship(self)
+            if len(self.available_ships) == 1:
+                self.available_ships.pop(list(self.available_ships.keys())[0]).place_ship(self)
+            else:
+                self.select_ship().place_ship(self)
         self.print_confirm()
 
     def select_ship(self):    
@@ -186,15 +189,22 @@ class Player:
 
     def print_confirm(self):
 
-        print_grid(self.grid)
+        setup_confirmed = False
+        while not setup_confirmed:
 
-        for ship in self.ships:
-            print(ship.name + ": is located at ", ship.all_coords)
-            player_choice = str(input("Confirm placement? (Y/N): ").upper())
-            if player_choice == "Y":
-                continue
-            elif player_choice == "N":
-                ship.reset(self)
+            print_grid(self.grid)
+            confirms = 0
+
+            for ship in self.ships:
+                print(ship.name + ": is located at ", ship.all_coords)
+                player_choice = str(input("Confirm placement? (Y/N): ").upper())
+                if player_choice == "N":
+                    ship.reset(self)
+                    break
+                else:
+                    confirms += 1
+            if confirms == len(self.ships):
+                setup_confirmed = True
 
     def fire(self, opponent):
 
@@ -228,6 +238,19 @@ class Player:
             if shot_coord in self.shots_fired:
                 print("You have already fired this shot. Please enter a different coordinate.")
                 continue
+
+            confirm_coordinate = input("Confirm shot at: [" + shot_coord + "] (Y/N)?").upper()
+            if confirm_coordinate == "N":
+                print("Changing shot coordinate.")
+                continue
+            else:
+                confirm_fire = input("Fire? (Y/N)?").upper()
+
+            if confirm_fire == "N":
+                print("Shot aborted.")
+                continue
+
+            print("FIRE!")
             
             self.shots_fired.append(shot_coord)
 
