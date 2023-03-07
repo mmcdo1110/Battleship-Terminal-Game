@@ -1,4 +1,4 @@
-# Battleship-Terminal-Game
+# Pythons on a Battleship (a python terminal game)
 
 Final project for python3 section of Computer Science 101 course path on Codecademy.
 
